@@ -1,0 +1,55 @@
+version: '3.3'
+
+services:
+
+  wordpress:
+    image: wordpress:latest
+    container_name: wp1
+    hostname: wordpress
+    restart: unless-stopped
+    ports:
+      - "8101:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: passw0rd
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    networks:
+      - red_wp1
+
+  db:
+    image: mariadb:latest
+    container_name: db_wp1
+    hostname: db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: passw0rd
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: passw0rd
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - red_wp1
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: pma_wp1
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db:3306
+      MYSQL_ROOT_PASSWORD: passw0rd
+      PMA_USER: wordpress
+      PMA_PASSWORD: passw0rd
+    networks:
+      - red_wp1
+
+networks:
+  red_wp1:
